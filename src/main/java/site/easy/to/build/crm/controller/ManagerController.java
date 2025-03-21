@@ -56,8 +56,11 @@ public class ManagerController {
         if(loggedInUser.isInactiveUser()) {
             return "error/account-inactive";
         }
-        profiles.removeIf(profile -> profile.getId() == currentUserId);
 
+        profiles.removeIf(profile -> profile.getId() == currentUserId);
+        for (User user : profiles) {
+            System.out.println(user);
+        }
         model.addAttribute("profiles",profiles);
         return "manager/all-users";
     }

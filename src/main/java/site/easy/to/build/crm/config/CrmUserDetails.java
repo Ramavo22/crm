@@ -53,7 +53,7 @@ public class CrmUserDetails implements UserDetailsService {
                     .map(role -> new SimpleGrantedAuthority(role.getName()))
                     .collect(Collectors.toList());
         }
-
+        System.out.println(username+" "+password+" "+authorities);
         return new org.springframework.security.core.userdetails.User(username,password,authorities);
     }
 }

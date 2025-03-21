@@ -46,6 +46,8 @@ public class TimeDateUtil {
         dateTimeParts.put("time", time);
         dateTimeParts.put("timeZone", timeZone);
 
+        System.out.println(dateTime);
+
         return dateTimeParts;
     }
 }

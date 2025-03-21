@@ -10,12 +10,23 @@
       th:href="@{/css/dataTables.bootstrap4.css}">
 <link rel="stylesheet" type="text/css"
       th:href="@{/css/responsive.dataTables.min.css}">
+<!-- wysihtml5 CSS -->
+<link th:href="@{/css/fullcalendar.css}" rel="stylesheet" />
+<link th:href="@{/css/bootstrap-material-datetimepicker.css}" rel="stylesheet">
 
+<link th:href="@{/css/bootstrap-datepicker.min.css}" rel="stylesheet" type="text/css" />
+
+<link th:href="@{/css/jquery-clockpicker.min.css}" rel="stylesheet">
+
+<link th:href="@{/css/tagify.css}" rel="stylesheet" type="text/css" />
+<!--    <link  />-->
+<link rel="stylesheet" th:href="@{/css/bootstrap-wysihtml5.css}"/>
 <!-- Custom CSS -->
 <link th:href="@{/css/style.min.css}" rel="stylesheet">
 <!-- page css -->
 <link th:href="@{/css/pages/inbox.css}" rel="stylesheet">
 
+<link th:href="@{/css/ribbon-page.css}" rel="stylesheet">
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 <!--[if lt IE 9]>
@@ -31,7 +42,7 @@
 <div class="preloader">
     <div class="loader">
         <div class="loader__figure"></div>
-        <p class="loader__label">CRM</p>
+        <p class="loader__label">Elite admin</p>
     </div>
 </div>
 <!-- ============================================================== -->
@@ -66,46 +77,15 @@
             <div th:insert="~{/general/page-titles.html}"></div>
             <!-- ============================================================== -->
             <!-- End Bread crumb and right sidebar toggle -->
-            <!-- ============================================================== -->
+            <!-- =======================================================è, n;    ======= -->
+
+
             <!-- ============================================================== -->
             <!-- Start Page Content -->
             <!-- ============================================================== -->
             <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Contracts</h4>
-                            <div class="table-responsive m-t-40">
-                                <table id="config-table" class="table display table-bordered table-striped no-wrap">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Subject</th>
-                                        <th>Status</th>
-                                        <th>Employee email</th>
-                                        <th>Employee name</th>
-                                        <th>Start date</th>
-                                        <th>End date</th>
-                                        <th>Show</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:if="${contracts != null}" th:each="contract : ${contracts}">
-                                        <td th:text="${contract.contractId}"></td>
-                                        <td th:text="${contract.subject}"></td>
-                                        <td th:text="${contract.status}"></td>
-                                        <td th:text="${contract.user.email}"></td>
-                                        <td th:text="${contract.user.username}"></td>
-                                        <td th:text="${contract.startDate}"></td>
-                                        <td th:text="${contract.endDate}"></td>
-                                        <td><a th:href="@{/customer/contract/{contratId}(contratId=${contract.contractId})}"><i class="fas fa-eye"></i></a></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h1 class="h1 text-center"> Génerer Données </h1>
+                <h2 class="h1 text-center"> Cooming Soon </h2>
             </div>
             <!-- ============================================================== -->
             <!-- End Page Content -->
@@ -158,13 +138,22 @@
 <script th:src="@{/js/library/jquery.sparkline.min.js}" type="text/javascript"></script>
 <!--Custom JavaScript -->
 <script th:src="@{/js/library/custom.min.js}" type="text/javascript"></script>
-<!-- Editable -->
-<script th:src="@{/js/library/jquery.dataTables.min.js}"></script>
-<script th:src="@{/js/library/dataTables.responsive.min.js}"></script>
-<script>
-    $('#config-table').DataTable({
-        responsive: true
-    });
+<script th:inline="javascript">
+    var eventDisplays = /*[[${eventDisplays}]]*/ null;  // Assign the objectList to the JavaScript variable
+    <!--      var startDateTime = new Date("2023-08-08T07:47:00+03:00");-->
+    <!--    var x = new Date(event.startDate + "T" + event.startTime + event.timeZone);-->
+    <!--    var y = new Date(event.endDate + "T" + event.endTime + event.timeZone);-->
 </script>
+<script  th:src="@{/js/library/jquery-ui.min.js}"></script>
+<script  th:src="@{/js/library/moment.js}"></script>
+<script  th:src="@{/js/library/fullcalendar.min.js}"></script>
+<script th:src="@{/js/library/jquery-clockpicker.min.js}"></script>
+<script th:src="@{/js/library/bootstrap-material-datetimepicker.js}"></script>
+<script th:src="@{/js/library/bootstrap-datepicker.min.js}"></script>
+
+<script th:src="@{/js/library/tagify.min.js}"></script>
+<script th:src="@{/js/library/tagify.polyfills.min.js}"></script>
+<script  th:src="@{/js/cal-init.js}" type="text/javascript" th:data-csrf-token="${_csrf.token}" th:data-csrf-header="${_csrf.headerName}"></script>
 </body>
+
 </html>
