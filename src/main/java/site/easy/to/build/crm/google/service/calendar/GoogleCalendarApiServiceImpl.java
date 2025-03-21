@@ -58,9 +58,12 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
         // Convert Event objects to EventDisplay objects
         List<EventDisplay> eventDisplays = eventList.getItems().stream()
+                // TODO: gérer les évènements prenant toute une journée et les horaires
+                .filter(event -> event.getStart().getDateTime() != null && event.getEnd().getDateTime() != null)
                 .map(event -> {
                     EventDateTime start = event.getStart();
                     EventDateTime end = event.getEnd();
+
                     Map<String, String> startDateTimeParts = TimeDateUtil.extractDateTime(start.getDateTime());
                     Map<String, String> endDateTimeParts = TimeDateUtil.extractDateTime(end.getDateTime());
 

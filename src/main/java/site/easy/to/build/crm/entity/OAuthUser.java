@@ -1,6 +1,8 @@
 package site.easy.to.build.crm.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.ToString;
 import site.easy.to.build.crm.converter.StringSetConverter;
 
 import java.time.Instant;
@@ -9,6 +11,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "oauth_users")
+@ToString
 public class OAuthUser {
 
     @Id
