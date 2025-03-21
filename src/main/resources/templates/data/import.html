@@ -83,13 +83,33 @@
             <!-- ============================================================== -->
             <!-- Start Page Content -->
             <!-- ============================================================== -->
-            <a th:href="@{/manager/data/reinit}"><button class="btn btn-danger">Reinit Base</button></a>
             <div class="row">
                 <div th:if="${status == 'success'}" class="alert alert-success">
                     Réinitialisation réussie.
                 </div>
                 <div th:if="${status == 'error'}" class="alert alert-danger">
                     Une erreur est survenue.
+                </div>
+            </div>
+            <a th:href="@{/manager/data/reinit}"><button class="btn btn-danger">Reinit Base</button></a>
+            <div class="container mt-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Import des données csv</h4>
+                        <form th:action="@{/manager/data/import}" method="post" enctype="multipart/form-data">
+                            <div th:if="${st == 'success'}" class="alert alert-success">
+                                <span th:text="${message}"></span>
+                            </div>
+                            <div th:if="${st == 'error'}" class="alert alert-danger">
+                                <span th:text="${message}"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="fileInput">Choisir un fichier</label>
+                                <input type="file" class="form-control-file" id="fileInput" name="file">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Importer</button>
+                        </form>
+                    </div>
                 </div>
             </div>
             <!-- ============================================================== -->

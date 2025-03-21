@@ -5,10 +5,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.annotation.Documented;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+* @Author Fanantenana
+* */
 @Service
 public class DataManagerService {
 
@@ -18,13 +26,54 @@ public class DataManagerService {
     @Autowired
     PlatformTransactionManager transactionManager;
 
-
     /*
     * Used to add data from a csv file
     * */
-    public void importData(){
+    public void importData(MultipartFile dataCsv) {
+        String sql = "INSERT INTO employee (id, username, first_name, last_name, email, password, provider) VALUE (?,?,?,?,?,?,?)";
+        List<Object[]> data = new ArrayList<>();
 
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(dataCsv.getInputStream(), StandardCharsets.UTF_8))) {
+
+            // Skip the header row
+            String line = reader.readLine();
+
+            while ((line = reader.readLine()) != null) {
+                String[] dataLine = line.split(",",-1);
+
+
+                // Ajouter les arguments dans le batch
+                data.add(new Object[]{
+                        Integer.parseInt(dataLine[0]),
+                        dataLine[1],
+                        dataLine[2],
+                        dataLine[3],
+                        dataLine[4],
+                        dataLine[5],
+                        dataLine[6]
+                });
+
+                // Si le batch atteint une taille de 1000, on exécute
+                if (data.size() == 1000) {
+                    jdbcTemplate.batchUpdate(sql, data);
+                   data.clear();
+                }
+            }
+
+            // Insérer le dernier lot
+            if (!data.isEmpty()) {
+                jdbcTemplate.batchUpdate(sql, data);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de l'importation du fichier CSV : " + e.getMessage(), e);
+        }
     }
+
+
+
     /*
     *   Used When you want to clean your database expect users for testing withing an empty data
     * */
