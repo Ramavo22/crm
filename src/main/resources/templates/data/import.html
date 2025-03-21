@@ -83,9 +83,14 @@
             <!-- ============================================================== -->
             <!-- Start Page Content -->
             <!-- ============================================================== -->
+            <a th:href="@{/manager/data/reinit}"><button class="btn btn-danger">Reinit Base</button></a>
             <div class="row">
-                <h1 class="h1 text-center"> Page Import & Reinitialisation </h1>
-                <h2 class="h1 text-center"> Cooming Soon </h2>
+                <div th:if="${status == 'success'}" class="alert alert-success">
+                    Réinitialisation réussie.
+                </div>
+                <div th:if="${status == 'error'}" class="alert alert-danger">
+                    Une erreur est survenue.
+                </div>
             </div>
             <!-- ============================================================== -->
             <!-- End Page Content -->
