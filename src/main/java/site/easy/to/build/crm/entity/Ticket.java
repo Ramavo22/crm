@@ -48,10 +48,15 @@ public class Ticket {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "depense")
+    private Double depense;
+
+
+
     public Ticket() {
     }
 
-    public Ticket(String subject, String description, String status, String priority, User manager, User employee, Customer customer, LocalDateTime createdAt) {
+    public Ticket(String subject, String description, String status, String priority, User manager, User employee, Customer customer, LocalDateTime createdAt, Double depense) {
         this.subject = subject;
         this.description = description;
         this.status = status;
@@ -60,6 +65,7 @@ public class Ticket {
         this.employee = employee;
         this.customer = customer;
         this.createdAt = createdAt;
+        this.depense = depense;
     }
 
     public int getTicketId() {
@@ -132,5 +138,13 @@ public class Ticket {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Double getDepense() {
+        return depense;
+    }
+
+    public void setDepense(Double depense) {
+        this.depense = depense;
     }
 }
