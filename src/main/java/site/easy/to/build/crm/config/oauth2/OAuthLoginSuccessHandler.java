@@ -88,10 +88,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         OAuth2AccessToken oAuth2AccessToken = authorizedClient.getAccessToken();
         OAuth2RefreshToken oAuth2RefreshToken = authorizedClient.getRefreshToken();
 
-        System.out.println("\n===================================oAuth2RefreshToken==========================================\n\n");
-        System.out.println(oAuth2RefreshToken);
-        System.out.println("\n=============================================================================\n\n");
-
         HttpSession session = request.getSession();
         boolean previouslyUsedRegularAccount = session.getAttribute("loggedInUserId") != null;
         int userId = (previouslyUsedRegularAccount) ? (int) session.getAttribute("loggedInUserId") : -1;
@@ -159,9 +155,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
                 loggedOAuthUser = user.getOauthUser();
             }
 
-            System.out.println("\n===================================loggedOAuthUser========================================\n\n");
-            System.out.println(loggedOAuthUser);
-            System.out.println("\n=============================================================================\n\n");
             oAuthUserService.save(loggedOAuthUser, user);
             List<GrantedAuthority> authorities = user.getRoles().stream()
                     .map(role -> new SimpleGrantedAuthority(role.getName()))

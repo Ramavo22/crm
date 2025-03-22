@@ -60,12 +60,15 @@ public class Lead {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "depense")
+    private Double depense;
+
     public Lead() {
     }
 
     public Lead(String name, String status, String phone, String meetingId, Boolean googleDrive, String googleDriveFolderId,
                 List<LeadAction> leadActions, List<File> files, List<GoogleDriveFile> googleDriveFiles, User manager, User employee,
-                Customer customer, LocalDateTime createdAt) {
+                Customer customer, LocalDateTime createdAt,Double depense) {
         this.name = name;
         this.status = status;
         this.phone = phone;
@@ -79,6 +82,7 @@ public class Lead {
         this.employee = employee;
         this.customer = customer;
         this.createdAt = createdAt;
+        this.depense = depense;
     }
 
     public int getLeadId() {
@@ -216,6 +220,14 @@ public class Lead {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Double getDepense() {
+        return depense;
+    }
+
+    public void setDepense(Double depense) {
+        this.depense = depense;
     }
 }
 

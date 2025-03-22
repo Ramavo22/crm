@@ -128,10 +128,10 @@ CREATE TABLE IF NOT EXISTS `customer` (
     )
 
 CREATE TABLE IF NOT EXISTS `trigger_lead` (
-                                              `lead_id` int unsigned NOT NULL AUTO_INCREMENT,
-                                              `customer_id` int unsigned NOT NULL,
-                                              `user_id` int DEFAULT NULL,
-                                              `name` varchar(255) DEFAULT NULL,
+      `lead_id` int unsigned NOT NULL AUTO_INCREMENT,
+      `customer_id` int unsigned NOT NULL,
+      `user_id` int DEFAULT NULL,
+      `name` varchar(255) DEFAULT NULL,
     `phone` varchar(20) DEFAULT NULL,
     `employee_id` int DEFAULT NULL,
     `status` varchar(50) DEFAULT NULL,
@@ -323,5 +323,14 @@ CREATE TABLE taux_alert(
    since DATETIME NOT NULL,
    PRIMARY KEY(id)
 );
+
+ALTER TABLE trigger_lead
+    ADD COLUMN depense DECIMAL(10,2) NOT NULL DEFAULT 0.00;
+
+ALTER TABLE trigger_ticket
+    ADD COLUMN depense DECIMAL(10,2) NOT NULL DEFAULT 0.00;
+
+
+
 
 
