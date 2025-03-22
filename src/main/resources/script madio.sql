@@ -317,3 +317,11 @@ CREATE TABLE IF NOT EXISTS `ticket_settings` (
     CONSTRAINT `ticket_settings_ibfk_6` FOREIGN KEY (`customer_id`) REFERENCES `customer_login_info` (`id`)
     )
 
+CREATE TABLE taux_alert(
+   id INT AUTO_INCREMENT,
+   pourcentage DECIMAL(2,2)  NOT NULL,
+   since DATETIME NOT NULL,
+   PRIMARY KEY(id)
+);
+
+
