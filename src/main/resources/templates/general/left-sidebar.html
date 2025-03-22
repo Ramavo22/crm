@@ -30,7 +30,7 @@
                 <li class="nav-small-cap" th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}" >--- Donnée</li>
                 <li  th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}">
                     <a class="has-arrow waves-effect waves-dark" href="javascript:void(0)">
-                        <i class="fas fa-ticket-alt"></i>
+                        <i class="fa fa-database"></i>
                         <span class="hide-menu">Gestion de données</span>
                     </a>
                     <ul class="collapse">
@@ -38,6 +38,23 @@
                         <li><a th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}" th:href="${home + 'manager/data/generation'}">Generation des données</a></li>
                     </ul>
                 </li>
+                <!-- Fin Import -->
+
+                <!-- Debut Import -->
+                <li class="nav-small-cap" th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}" >--- Budget</li>
+                <li><a th:href="${home + 'manager/budget'}">Ajouter Budget</a></li>
+
+
+<!--                <li  th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}">-->
+<!--                    <a class="has-arrow waves-effect waves-dark" href="javascript:void(0)">-->
+<!--                        <i class="fa fa-database"></i>-->
+<!--                        <span class="hide-menu">Gestion de données</span>-->
+<!--                    </a>-->
+<!--                    <ul class="collapse">-->
+<!--                        <li><a th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}" th:href="${home + 'manager/data/import'}">Import & Reinitialisation</a></li>-->
+<!--                        <li><a th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}" th:href="${home + 'manager/data/generation'}">Generation des données</a></li>-->
+<!--                    </ul>-->
+<!--                </li>-->
                 <!-- Fin Import -->
 
 

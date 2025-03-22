@@ -151,6 +151,9 @@ public class GoogleCalendarController {
 
             if(leadId != null) {
                 Lead lead = leadService.findByLeadId(leadId);
+                System.out.println("\n=======================");
+                System.out.println(lead);
+                System.out.println("\n=======================");
                 User employee = oAuthUser.getUser();
                 lead.setEmployee(employee);
                 lead.setStatus("Scheduled");

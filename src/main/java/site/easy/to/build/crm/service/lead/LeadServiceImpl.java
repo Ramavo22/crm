@@ -1,5 +1,7 @@
 package site.easy.to.build.crm.service.lead;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,7 @@ public class LeadServiceImpl implements LeadService {
     }
     @Override
     public Lead save(Lead lead) {
+
         return leadRepository.save(lead);
     }
 
