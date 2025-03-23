@@ -331,6 +331,15 @@ ALTER TABLE trigger_ticket
     ADD COLUMN depense DECIMAL(18,2) NOT NULL DEFAULT 0.00;
 
 
+CREATE TABLE budget(
+   id INT AUTO_INCREMENT,
+   montant DECIMAL(15,2)   NOT NULL,
+   dt_ajout_budget DATETIME NOT NULL,
+   customer_id int unsigned,
+   PRIMARY KEY(id),
+   FOREIGN KEY(customer_id) REFERENCES customer(customer_id)
+);
+
 
 
 

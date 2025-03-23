@@ -14,6 +14,7 @@ import site.easy.to.build.crm.service.TauxAlert.TauxAlertService;
 import site.easy.to.build.crm.util.DataTransfertObject;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/budget-alert")
@@ -32,9 +33,11 @@ public class TauxAlertController {
         tauxAlert.setSince(LocalDateTime.now());
         tauxAlertService.save(tauxAlert);
         DataTransfertObject dataTransfertObject = new DataTransfertObject();
-        dataTransfertObject.setMessage("Configuration mis à jour");
+        dataTransfertObject.setMessage("Configuration mis à jour ");
         dataTransfertObject.setStatusCode(HttpStatus.CREATED.value());
         dataTransfertObject.setErreur(null);
+        dataTransfertObject.setData(new HashMap<>());
+        dataTransfertObject.getData().put("tauxAlert",tauxAlert);
         return ResponseEntity.ok(dataTransfertObject);
     }
 }
