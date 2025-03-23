@@ -90,4 +90,10 @@ public class TicketServiceImpl implements TicketService{
     public void deleteAllByCustomer(Customer customer) {
         ticketRepository.deleteAllByCustomer(customer);
     }
+
+    @Override
+    public Double getDepenseByCustomerId(int customerId) {
+        Double expense = ticketRepository.getDepenseByCustomerId(customerId);
+        return expense!=null? expense : 0.0;
+    }
 }

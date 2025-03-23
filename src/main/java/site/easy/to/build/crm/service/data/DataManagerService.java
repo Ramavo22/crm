@@ -107,7 +107,7 @@ public class DataManagerService {
 
             } catch (Exception ex) {
                 status.setRollbackOnly();  // En cas d'erreur : rollback
-                throw new RuntimeException("Erreur lors du truncate en batch", ex);
+                throw new RuntimeException("Erreur lors du truncate en batch "+ex.getCause()+" : " + ex.getMessage(), ex);
             }
         });
     }

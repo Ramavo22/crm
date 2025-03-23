@@ -30,8 +30,4 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body("Erreur de validation : " + errorMsg);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception ex) {
-        return ResponseEntity.badRequest().body("Erreur de validation : " + ex.getMessage());
-    }
 }

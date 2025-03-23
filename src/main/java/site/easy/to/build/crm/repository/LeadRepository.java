@@ -3,6 +3,7 @@ package site.easy.to.build.crm.repository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.entity.Lead;
@@ -33,6 +34,9 @@ public interface LeadRepository extends JpaRepository<Lead, Integer> {
 
     void deleteAllByCustomer(Customer customer);
 
-    @Query("SELECT SUM (l.depense) FROM Lead l WHERE l.customer.customerId := customerId")
-    public Double findDepenseByCustomerId(int customerId);
+    @Query("SELECT SUM (l.depense) FROM Lead l WHERE l.customer.customerId = :customerId")
+    public Double findDepenseByCustomerId(@Param("customerId")Integer customerId);
+
+    @Query("SELECT SUM (l.depense) FROM Lead l")
+    public Double findAllDepense();
 }

@@ -11,11 +11,15 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import site.easy.to.build.crm.entity.*;
 import site.easy.to.build.crm.entity.settings.TicketEmailSettings;
 import site.easy.to.build.crm.google.service.acess.GoogleAccessService;
 import site.easy.to.build.crm.google.service.gmail.GoogleGmailApiService;
+import site.easy.to.build.crm.service.Budget.BudgetService;
+import site.easy.to.build.crm.service.TauxAlert.TauxAlertService;
 import site.easy.to.build.crm.service.customer.CustomerService;
+import site.easy.to.build.crm.service.expense.ExpenseService;
 import site.easy.to.build.crm.service.settings.TicketEmailSettingsService;
 import site.easy.to.build.crm.service.ticket.TicketService;
 import site.easy.to.build.crm.service.user.UserService;
@@ -42,10 +46,15 @@ public class TicketController {
     private final GoogleGmailApiService googleGmailApiService;
     private final EntityManager entityManager;
 
+    private final TauxAlertService tauxAlertService;
+    private final BudgetService budgetService;
+    private final ExpenseService expenseService;
+
 
     @Autowired
     public TicketController(TicketService ticketService, AuthenticationUtils authenticationUtils, UserService userService, CustomerService customerService,
-                            TicketEmailSettingsService ticketEmailSettingsService, GoogleGmailApiService googleGmailApiService, EntityManager entityManager) {
+                            TicketEmailSettingsService ticketEmailSettingsService, GoogleGmailApiService googleGmailApiService, EntityManager entityManager,
+                            TauxAlertService tauxAlertService, BudgetService budgetService, ExpenseService expenseService) {
         this.ticketService = ticketService;
         this.authenticationUtils = authenticationUtils;
         this.userService = userService;
@@ -53,6 +62,9 @@ public class TicketController {
         this.ticketEmailSettingsService = ticketEmailSettingsService;
         this.googleGmailApiService = googleGmailApiService;
         this.entityManager = entityManager;
+        this.tauxAlertService = tauxAlertService;
+        this.budgetService = budgetService;
+        this.expenseService = expenseService;
     }
 
     @GetMapping("/show-ticket/{id}")
@@ -125,7 +137,7 @@ public class TicketController {
     @PostMapping("/create-ticket")
     public String createTicket(@ModelAttribute("ticket") @Validated Ticket ticket, BindingResult bindingResult, @RequestParam("customerId") int customerId,
                                @RequestParam Map<String, String> formParams, Model model,
-                               @RequestParam("employeeId") int employeeId, Authentication authentication) {
+                               @RequestParam("employeeId") int employeeId, Authentication authentication, RedirectAttributes redirectAttributes) {
 
         int userId = authenticationUtils.getLoggedInUserId(authentication);
         User manager = userService.findById(userId);
@@ -164,15 +176,33 @@ public class TicketController {
             }
         }
 
+
+
+        StringBuilder message = new StringBuilder();
+        Double expenseInBase = expenseService.getTotalExpenseByCustomer(customerId);
+        Double actualExpense = expenseInBase + ticket.getDepense();
+        Double tauxAlert = tauxAlertService.findLastTauxAlert().getPourcentage();
+        Double budget = budgetService.getSumOfMontantByCustomerId(customerId);
+        Double pourcentageExpense  = (actualExpense * 100) / budget;
+        boolean needConfirmation = pourcentageExpense > 100;
+        if (needConfirmation) {
+            message.append("Your Expense at ").append(pourcentageExpense).append("%").append(" for this customer's actual budget").append(". You need to confirm your expense.");
+            String m = message.toString();
+            System.out.println(m);
+            redirectAttributes.addFlashAttribute("alertMessage", m);
+        }
+        if(pourcentageExpense>tauxAlert){
+            message.append("Your Expense at ").append(pourcentageExpense).append("%").append(" for this customer's actual budget");
+            String m = message.toString();
+            System.out.println(m);
+            redirectAttributes.addFlashAttribute("alertMessage", m);
+        }
         ticket.setCustomer(customer);
         ticket.setManager(manager);
         ticket.setEmployee(employee);
         ticket.setCreatedAt(LocalDateTime.now());
-
         ticketService.save(ticket);
-
         // ajouter depense
-
         return "redirect:/employee/ticket/assigned-tickets";
     }
 
