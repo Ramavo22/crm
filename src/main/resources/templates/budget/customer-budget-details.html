@@ -84,27 +84,7 @@
             <!-- Start Page Content -->
             <!-- ============================================================== -->
             <div class="container mt-5">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Ajouter Budget</h4>
-                        <form th:action="@{/employee/budget/create}" method="post" th:object="${budget}">
-                            <div class="form-group">
-                                <label for="customers">Customer</label>
-                                <select class="form-control" id="customers" name="customerId">
-                                    <option th:each="customer : ${customers}" th:text="${customer.name}" th:value="${customer.customerId}"></option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="montant">montant</label>
-                                <input type="number" class="form-control" id="montant" th:field="*{montant}">
-                            </div>
-                            <div th:if="${#fields.hasErrors('montant')}" class="text-danger">
-                                <p th:errors="*{montant}"></p>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Importer</button>
-                        </form>
-                    </div>
-                </div>
+                <h1 class="h1 text-info">Coming Soon</h1>
             </div>
             <!-- ============================================================== -->
             <!-- End Page Content -->
