@@ -1,4 +1,4 @@
-package site.easy.to.build.crm.config;
+package site.easy.to.build.crm.config.api;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -11,8 +11,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import site.easy.to.build.crm.repository.UserRepository;
 import site.easy.to.build.crm.entity.User;
+import site.easy.to.build.crm.repository.UserRepository;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class CrmUserDetails implements UserDetailsService {
+public class ApiUserDetails implements UserDetailsService {
 
     @Autowired
     UserRepository userRepository;
@@ -29,20 +29,16 @@ public class CrmUserDetails implements UserDetailsService {
     HttpSession session;
     @Autowired
     private HttpServletResponse request;
-
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         String crmUsername, password;
-        User user = userRepository.findByUsername(username).size() == 1  ? userRepository.findByUsername(username).get(0) : null;System.out.println("lol");
+        System.out.println("api Service");
+        User user = userRepository.findByUsername(username).size() == 1  ? userRepository.findByUsername(username).get(0) : null;
         List<GrantedAuthority> authorities;
         if(user == null) {
-            System.out.println("lol 1");
             throw new UsernameNotFoundException("user details not found for the user : " + username);
         } else {
-            System.out.println("lol 2 " +user.getId());
             if(user.getStatus().equals("suspended")) {
-                System.out.println("lol 3 " +user.getId());
                 HttpServletResponse httpServletResponse =
                         ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getResponse();
                 try {
@@ -61,3 +57,4 @@ public class CrmUserDetails implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(username,password,authorities);
     }
 }
+
