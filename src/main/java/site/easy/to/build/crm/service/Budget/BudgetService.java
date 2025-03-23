@@ -19,4 +19,6 @@ public interface BudgetService {
 
     public List<BudgetClientTotal> getBudgetClientTotals();
 
+    public Double getSumOfMontantByCustomerId(int userId);
+
 }

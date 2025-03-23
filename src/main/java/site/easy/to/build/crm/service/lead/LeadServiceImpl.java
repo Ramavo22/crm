@@ -73,6 +73,12 @@ public class LeadServiceImpl implements LeadService {
     }
 
     @Override
+    public Double getDepenseByCustomerId(int customerId) {
+        Double expense = leadRepository.findDepenseByCustomerId(customerId);
+        return expense != null ? expense : 0.0;
+    }
+
+    @Override
     public List<Lead> getRecentLeads(int managerId, int limit) {
         Pageable pageable = PageRequest.of(0, limit);
         return leadRepository.findByManagerIdOrderByCreatedAtDesc(managerId, pageable);
@@ -97,4 +103,6 @@ public class LeadServiceImpl implements LeadService {
     public long countByCustomerId(int customerId) {
         return leadRepository.countByCustomerCustomerId(customerId);
     }
+
+
 }

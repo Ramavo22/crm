@@ -57,7 +57,7 @@ public class DataManagerController {
             redirectAttributes.addFlashAttribute("status", "success");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("status", "error");
-            throw new RuntimeException(e);
+            return "error/500";
         }
         return "redirect:/manager/data/import";
     }

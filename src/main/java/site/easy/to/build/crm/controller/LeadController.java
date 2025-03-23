@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import site.easy.to.build.crm.entity.*;
 import site.easy.to.build.crm.entity.settings.LeadEmailSettings;
 import site.easy.to.build.crm.google.model.calendar.EventDisplay;
@@ -25,8 +26,12 @@ import site.easy.to.build.crm.google.service.acess.GoogleAccessService;
 import site.easy.to.build.crm.google.service.calendar.GoogleCalendarApiService;
 import site.easy.to.build.crm.google.service.drive.GoogleDriveApiService;
 import site.easy.to.build.crm.google.service.gmail.GoogleGmailApiService;
+import site.easy.to.build.crm.repository.TauxAlertRepository;
+import site.easy.to.build.crm.service.Budget.BudgetService;
+import site.easy.to.build.crm.service.TauxAlert.TauxAlertService;
 import site.easy.to.build.crm.service.customer.CustomerService;
 import site.easy.to.build.crm.service.drive.GoogleDriveFileService;
+import site.easy.to.build.crm.service.expense.ExpenseService;
 import site.easy.to.build.crm.service.file.FileService;
 import site.easy.to.build.crm.service.lead.LeadActionService;
 import site.easy.to.build.crm.service.lead.LeadService;
@@ -61,11 +66,17 @@ public class LeadController {
     private final GoogleGmailApiService googleGmailApiService;
     private final EntityManager entityManager;
 
+    private final TauxAlertService tauxAlertService;
+    private final BudgetService budgetService;
+    private final ExpenseService expenseService;
+
+
     @Autowired
     public LeadController(LeadService leadService, AuthenticationUtils authenticationUtils, UserService userService, CustomerService customerService,
                           LeadActionService leadActionService, GoogleCalendarApiService googleCalendarApiService, FileService fileService,
                           GoogleDriveApiService googleDriveApiService, GoogleDriveFileService googleDriveFileService, FileUtil fileUtil,
-                          LeadEmailSettingsService leadEmailSettingsService, GoogleGmailApiService googleGmailApiService, EntityManager entityManager) {
+                          LeadEmailSettingsService leadEmailSettingsService, GoogleGmailApiService googleGmailApiService, EntityManager entityManager,
+                          TauxAlertService tauxAlertService,BudgetService budgetService,ExpenseService expenseService) {
         this.leadService = leadService;
         this.authenticationUtils = authenticationUtils;
         this.userService = userService;
@@ -79,6 +90,9 @@ public class LeadController {
         this.leadEmailSettingsService = leadEmailSettingsService;
         this.googleGmailApiService = googleGmailApiService;
         this.entityManager = entityManager;
+        this.tauxAlertService = tauxAlertService;
+        this.budgetService = budgetService;
+        this.expenseService = expenseService;
     }
 
     @GetMapping("/show/{id}")
@@ -168,7 +182,7 @@ public class LeadController {
     public String createLead(@ModelAttribute("lead") @Validated Lead lead, BindingResult bindingResult,
                              @RequestParam("customerId") int customerId, @RequestParam("employeeId") int employeeId,
                              Authentication authentication, @RequestParam("allFiles")@Nullable String files,
-                             @RequestParam("folderId") @Nullable String folderId, Model model) throws JsonProcessingException {
+                             @RequestParam("folderId") @Nullable String folderId, Model model, RedirectAttributes redirectAttributes) throws JsonProcessingException {
 
         int userId = authenticationUtils.getLoggedInUserId(authentication);
         User manager = userService.findById(userId);
@@ -208,9 +222,30 @@ public class LeadController {
             }
         }
 
+        Double expenseInBase = expenseService.getTotalExpenseByCustomer(customerId);
+        Double actualExpense = expenseInBase + lead.getDepense();
+        Double tauxAlert = tauxAlertService.findLastTauxAlert().getPourcentage();
+        Double budget = budgetService.getSumOfMontantByCustomerId(customerId);
+
+        StringBuilder message = new StringBuilder();
+        double pourcentageExpense = (actualExpense * 100) / budget;
+        boolean needConfirmation = pourcentageExpense > 100;
+        if (needConfirmation) {
+            message.append("Your Expense at ").append(pourcentageExpense).append("%").append(" for this customer's actual budget").append(". You need to confirm your expense.");
+            String m = message.toString();
+            System.out.println(m);
+            redirectAttributes.addFlashAttribute("alertMessage", m);
+            // redirection
+        }
+
+        if(pourcentageExpense > tauxAlert) {
+            message.append("Your Expense at ").append(pourcentageExpense).append("%").append(" for this customer's actual budget");
+            String m = message.toString();
+            System.out.println(m);
+            redirectAttributes.addFlashAttribute("alertMessage", m);
+        }
         Lead createdLead = leadService.save(lead);
         fileUtil.saveFiles(allFiles, createdLead);
-
         if (lead.getGoogleDrive() != null) {
             fileUtil.saveGoogleDriveFiles(authentication, allFiles, folderId, createdLead);
         }
