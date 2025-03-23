@@ -319,16 +319,16 @@ CREATE TABLE IF NOT EXISTS `ticket_settings` (
 
 CREATE TABLE taux_alert(
    id INT AUTO_INCREMENT,
-   pourcentage DECIMAL(2,2)  NOT NULL,
+   pourcentage DECIMAL(5,2) NOT NULL,
    since DATETIME NOT NULL,
    PRIMARY KEY(id)
 );
 
 ALTER TABLE trigger_lead
-    ADD COLUMN depense DECIMAL(10,2) NOT NULL DEFAULT 0.00;
+    ADD COLUMN depense DECIMAL(18,2) NOT NULL DEFAULT 0.00;
 
 ALTER TABLE trigger_ticket
-    ADD COLUMN depense DECIMAL(10,2) NOT NULL DEFAULT 0.00;
+    ADD COLUMN depense DECIMAL(18,2) NOT NULL DEFAULT 0.00;
 
 
 

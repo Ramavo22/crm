@@ -18,7 +18,7 @@ public class TauxAlert {
 
     @NotNull
     @Column(name = "pourcentage", nullable = false, precision = 2, scale = 2)
-    @Positive
+    @Positive(message = "La valeur du pourcentage doit etre superieur positif")
     private Double pourcentage;
 
     @NotNull
