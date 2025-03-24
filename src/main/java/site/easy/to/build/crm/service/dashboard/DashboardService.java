@@ -8,9 +8,10 @@ public interface DashboardService {
 
     public Map<String,Integer>getCustomerCountPerMonth(int year);
 
-    public Map<String,Integer>getLeadCountPerMonth(int year);
+    public Map<String,Double>getLeadExpensePerMonth(int year);
 
-    public Map<String,Integer>getTicketCountPerYear(int year);
+    public Map<String,Double>getTicketExpensePerYear(int year);
 
-    
+
+
 }

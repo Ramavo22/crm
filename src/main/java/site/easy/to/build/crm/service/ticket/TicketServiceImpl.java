@@ -100,6 +100,10 @@ public class TicketServiceImpl implements TicketService{
         return expense!=null? expense : 0.0;
     }
 
+    @Override
+    public Double getTicketCountByYear(int year) {
+        Double total = ticketRepository.findTicketCountByYear(year);
+        return total!=null? total : 0.0;
+    }
 
-    public
 }

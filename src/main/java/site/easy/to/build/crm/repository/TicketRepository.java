@@ -3,6 +3,7 @@ package site.easy.to.build.crm.repository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.entity.Ticket;
@@ -33,8 +34,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     void deleteAllByCustomer(Customer customer);
 
-
-
     @Query("SELECT SUM (t.depense) FROM Ticket t WHERE t.customer.customerId = :customerId")
     Double getDepenseByCustomerId(int customerId);
+
+    @Query("SELECT COUNT (*) FROM Ticket t WHERE YEAR (t.createdAt) = :year")
+    public Double findTicketCountByYear(@Param("year")Integer year);
 }
