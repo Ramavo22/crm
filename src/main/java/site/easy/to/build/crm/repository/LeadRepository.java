@@ -37,6 +37,6 @@ public interface LeadRepository extends JpaRepository<Lead, Integer> {
     @Query("SELECT SUM (l.depense) FROM Lead l WHERE l.customer.customerId = :customerId")
     public Double findDepenseByCustomerId(@Param("customerId")Integer customerId);
 
-    @Query("SELECT SUM (l.depense) FROM Lead l")
-    public Double findAllDepense();
+    @Query("SELECT COUNT (*) FROM Lead l WHERE YEAR (l.createdAt) = :year")
+    public Double findLeadCountByYear(@Param("year")Integer year);
 }

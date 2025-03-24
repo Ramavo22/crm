@@ -1,7 +1,9 @@
 package site.easy.to.build.crm.service.ticket;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.repository.TicketRepository;
@@ -11,6 +13,7 @@ import java.util.List;
 
 @Service
 public class TicketServiceImpl implements TicketService{
+
 
     private final TicketRepository ticketRepository;
 
@@ -96,4 +99,11 @@ public class TicketServiceImpl implements TicketService{
         Double expense = ticketRepository.getDepenseByCustomerId(customerId);
         return expense!=null? expense : 0.0;
     }
+
+    @Override
+    public Double getTicketCountByYear(int year) {
+        Double total = ticketRepository.findTicketCountByYear(year);
+        return total!=null? total : 0.0;
+    }
+
 }

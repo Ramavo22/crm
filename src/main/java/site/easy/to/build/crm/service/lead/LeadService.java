@@ -35,4 +35,6 @@ public interface LeadService {
     public void deleteAllByCustomer(Customer customer);
 
     public Double getDepenseByCustomerId(int customerId);
+
+    public Double getLeadCountByYear(int year);
 }

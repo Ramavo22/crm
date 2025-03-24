@@ -79,6 +79,12 @@ public class LeadServiceImpl implements LeadService {
     }
 
     @Override
+    public Double getLeadCountByYear(int year) {
+        Double expense = leadRepository.findLeadCountByYear(year);
+        return expense != null ? expense : 0.0;
+    }
+
+    @Override
     public List<Lead> getRecentLeads(int managerId, int limit) {
         Pageable pageable = PageRequest.of(0, limit);
         return leadRepository.findByManagerIdOrderByCreatedAtDesc(managerId, pageable);

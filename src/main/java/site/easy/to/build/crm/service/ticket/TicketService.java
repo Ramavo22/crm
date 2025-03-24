@@ -35,4 +35,6 @@ public interface TicketService {
     void deleteAllByCustomer(Customer customer);
 
     Double getDepenseByCustomerId(int customerId);
+
+    Double getTicketCountByYear(int year);
 }
