@@ -33,6 +33,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     void deleteAllByCustomer(Customer customer);
 
+
+
     @Query("SELECT SUM (t.depense) FROM Ticket t WHERE t.customer.customerId = :customerId")
     Double getDepenseByCustomerId(int customerId);
 }
