@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import site.easy.to.build.crm.dtos.TicketDTO;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.entity.Ticket;
 
@@ -39,4 +40,13 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     @Query("SELECT COUNT (*) FROM Ticket t WHERE YEAR (t.createdAt) = :year")
     public Double findTicketCountByYear(@Param("year")Integer year);
+
+    @Query("""
+        SELECT new site.easy.to.build.crm.dtos.TicketDTO(
+            t.ticketId, t.subject,t.priority,t.status,
+            t.customer.name,t.employee.username,t.depense
+        )
+        FROM Ticket t
+""")
+    public List<TicketDTO> getTicketsDtos();
 }

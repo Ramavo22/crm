@@ -1,5 +1,6 @@
 package site.easy.to.build.crm.service.lead;
 
+import site.easy.to.build.crm.dtos.LeadDTO;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.entity.Lead;
 
@@ -37,4 +38,6 @@ public interface LeadService {
     public Double getDepenseByCustomerId(int customerId);
 
     public Double getLeadCountByYear(int year);
+
+    public List<LeadDTO> getLeadsDTO();
 }

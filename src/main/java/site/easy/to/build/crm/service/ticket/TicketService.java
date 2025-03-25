@@ -1,5 +1,6 @@
 package site.easy.to.build.crm.service.ticket;
 
+import site.easy.to.build.crm.dtos.TicketDTO;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.entity.Ticket;
 
@@ -37,4 +38,6 @@ public interface TicketService {
     Double getDepenseByCustomerId(int customerId);
 
     Double getTicketCountByYear(int year);
+
+    public List<TicketDTO> getTicketsDtos();
 }

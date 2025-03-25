@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -182,7 +183,9 @@ public class LeadController {
     public String createLead(@ModelAttribute("lead") @Validated Lead lead, BindingResult bindingResult,
                              @RequestParam("customerId") int customerId, @RequestParam("employeeId") int employeeId,
                              Authentication authentication, @RequestParam("allFiles")@Nullable String files,
-                             @RequestParam("folderId") @Nullable String folderId, Model model, RedirectAttributes redirectAttributes) throws JsonProcessingException {
+                             @RequestParam("folderId") @Nullable String folderId,
+                             @RequestParam("confirmed") @Nullable Boolean confirmed,
+                             Model model, RedirectAttributes redirectAttributes, HttpSession session) throws JsonProcessingException {
 
         int userId = authenticationUtils.getLoggedInUserId(authentication);
         User manager = userService.findById(userId);
@@ -190,7 +193,7 @@ public class LeadController {
             return "error/account-inactive";
         }
 
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             User user = userService.findById(userId);
             populateModelAttributes(model, authentication, user);
             return "lead/create-lead";
@@ -208,9 +211,9 @@ public class LeadController {
         lead.setCreatedAt(LocalDateTime.now());
 
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Attachment> allFiles = objectMapper.readValue(files, new TypeReference<List<Attachment>>() {
-        });
+        List<Attachment> allFiles = objectMapper.readValue(files, new TypeReference<List<Attachment>>() {});
 
+        // Vérification de Google Drive si nécessaire
         if (!(authentication instanceof UsernamePasswordAuthenticationToken) && googleDriveApiService != null) {
             OAuthUser oAuthUser = authenticationUtils.getOAuthUserFromAuthentication(authentication);
             try {
@@ -230,26 +233,32 @@ public class LeadController {
         StringBuilder message = new StringBuilder();
         double pourcentageExpense = (actualExpense * 100) / budget;
         boolean needConfirmation = pourcentageExpense > 100;
-        if (needConfirmation) {
-            message.append("Your Expense at ").append(pourcentageExpense).append("%").append(" for this customer's actual budget").append(". You need to confirm your expense.");
-            String m = message.toString();
-            System.out.println(m);
-            redirectAttributes.addFlashAttribute("alertMessage", m);
-            // redirection
+
+        if (needConfirmation && confirmed == null) {
+            // Stocker les informations nécessaires dans la session
+            session.setAttribute("lead", lead);
+            session.setAttribute("allFiles", files);
+            session.setAttribute("folderId", folderId);
+            session.setAttribute("pourcentageExpense", pourcentageExpense);
+            redirectAttributes.addFlashAttribute("message", "Your expense is at " + pourcentageExpense + "% of the budget. Please confirm before proceeding.");
+
+            return "redirect:/employee/lead/confirm";  // Redirection vers la confirmation
+        } else {
+            if (pourcentageExpense > tauxAlert) {
+                message.append("Your expense at ").append(pourcentageExpense).append("% for this customer's actual budget.");
+                String m = message.toString();
+                redirectAttributes.addFlashAttribute("alertMessage", m);
+            }
+
+            // Si aucune confirmation nécessaire, créer le lead
+            Lead createdLead = leadService.save(lead);
+            fileUtil.saveFiles(allFiles, createdLead);
+            if (lead.getGoogleDrive() != null) {
+                fileUtil.saveGoogleDriveFiles(authentication, allFiles, folderId, createdLead);
+            }
         }
 
-        if(pourcentageExpense > tauxAlert) {
-            message.append("Your Expense at ").append(pourcentageExpense).append("%").append(" for this customer's actual budget");
-            String m = message.toString();
-            System.out.println(m);
-            redirectAttributes.addFlashAttribute("alertMessage", m);
-        }
-        Lead createdLead = leadService.save(lead);
-        fileUtil.saveFiles(allFiles, createdLead);
-        if (lead.getGoogleDrive() != null) {
-            fileUtil.saveGoogleDriveFiles(authentication, allFiles, folderId, createdLead);
-        }
-
+        // Rediriger selon le statut du lead
         if (lead.getStatus().equals("meeting-to-schedule")) {
             return "redirect:/employee/calendar/create-event?leadId=" + lead.getLeadId();
         }
@@ -466,6 +475,7 @@ public class LeadController {
             fileUtil.saveGoogleDriveFiles(authentication,allFiles,folderId,lead);
         }
         Lead CurrentLead = leadService.save(lead);
+
         saveLeadActions(lead, prevLead);
         List<String> properties = DatabaseUtil.getColumnNames(entityManager, Lead.class);
         Map<String, Pair<String ,String>> changes = LogEntityChanges.trackChanges(originalLead,CurrentLead, properties);
@@ -484,6 +494,8 @@ public class LeadController {
         }
         return "redirect:/employee/lead/assigned-leads";
     }
+
+
 
     @PostMapping("/delete/{id}")
     public String deleteLead(@PathVariable("id") int id, Authentication authentication) {
@@ -647,4 +659,48 @@ public class LeadController {
         model.addAttribute("folders", folders);
         model.addAttribute("hasGoogleDriveAccess", hasGoogleDriveAccess);
     }
+
+
+    @GetMapping("/confirm")
+    public String confirmLead(Model model) {
+
+        return "lead/confirm-lead";
+    }
+
+    @PostMapping("/confirm")
+    public String confirmLead(HttpSession session, Authentication authentication,
+                              @RequestParam("confirmed") boolean confirmed, RedirectAttributes redirectAttributes)throws JsonProcessingException {
+        // Récupérer les données stockées dans la session
+        Lead lead = (Lead) session.getAttribute("lead");
+        String files = (String) session.getAttribute("allFiles");
+        String folderId = (String) session.getAttribute("folderId");
+        double pourcentageExpense = (double) session.getAttribute("pourcentageExpense");
+
+        // Si confirmation, sauvegarder le lead
+        if (confirmed) {
+            Lead createdLead = leadService.save(lead);
+            // Sauvegarder les fichiers associés
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Attachment> allFiles = objectMapper.readValue(files, new TypeReference<List<Attachment>>() {});
+            fileUtil.saveFiles(allFiles, createdLead);
+
+            if (lead.getGoogleDrive() != null) {
+                fileUtil.saveGoogleDriveFiles(authentication, allFiles, folderId, createdLead);
+            }
+
+
+            redirectAttributes.addFlashAttribute("alertMessageDanger", "Your expense is at " + pourcentageExpense + "% of the customer's budget");
+            // Rediriger selon le statut du lead
+            if (lead.getStatus().equals("meeting-to-schedule")) {
+                return "redirect:/employee/calendar/create-event?leadId=" + lead.getLeadId();
+            }
+            if(AuthorizationUtil.hasRole(authentication, "ROLE_MANAGER")) {
+                return "redirect:/employee/lead/created-leads";
+            }
+            return "redirect:/employee/lead/assigned-leads";  // Redirection après confirmation
+        } else {
+            return "redirect:/employee/lead/create";  // Retour à la création si la confirmation échoue
+        }
+    }
+
 }

@@ -5,6 +5,7 @@ import jakarta.validation.Validator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import site.easy.to.build.crm.dtos.LeadDTO;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.repository.LeadRepository;
 import site.easy.to.build.crm.entity.Lead;
@@ -82,6 +83,11 @@ public class LeadServiceImpl implements LeadService {
     public Double getLeadCountByYear(int year) {
         Double expense = leadRepository.findLeadCountByYear(year);
         return expense != null ? expense : 0.0;
+    }
+
+    @Override
+    public List<LeadDTO> getLeadsDTO() {
+        return leadRepository.findLeadDTO();
     }
 
     @Override
