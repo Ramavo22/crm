@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import site.easy.to.build.crm.dtos.LeadDTO;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.entity.Lead;
 
@@ -39,4 +40,13 @@ public interface LeadRepository extends JpaRepository<Lead, Integer> {
 
     @Query("SELECT COUNT (*) FROM Lead l WHERE YEAR (l.createdAt) = :year")
     public Double findLeadCountByYear(@Param("year")Integer year);
+
+    @Query("""
+        SELECT new site.easy.to.build.crm.dtos.LeadDTO(
+            l.leadId, l.name, l.phone,l.status,l.customer.name,
+            l.employee.username,l.depense
+        )
+        FROM Lead l
+""")
+    public List<LeadDTO> findLeadDTO();
 }
