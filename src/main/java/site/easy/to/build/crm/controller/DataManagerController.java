@@ -11,6 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import site.easy.to.build.crm.service.data.DataManagerService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Controller
 @RequestMapping("/manager/data")
 public class DataManagerController {
@@ -24,31 +27,60 @@ public class DataManagerController {
         return "data/import";
     }
 
-    @PostMapping("/import" +
-            "")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+    @PostMapping("/import")
+    public String handleFileUpload(@RequestParam("file1") MultipartFile file,
+                                   @RequestParam("file2") MultipartFile file2,
+                                   @RequestParam("file3") MultipartFile file3,
+                                   RedirectAttributes redirectAttributes) {
+        List<String> errors = new ArrayList<>();
+        // Validation des fichiers
         if (file.isEmpty()) {
-            redirectAttributes.addFlashAttribute("message", "File not uploaded");
-            redirectAttributes.addFlashAttribute("st", "error");
+            errors.add("Please select a file 1");
+        }
+        if (file2.isEmpty()) {
+            errors.add("Please select a file 2");
+        }
+        if (file3.isEmpty()) {
+            errors.add("Please select a file 3");
+        }
+
+        if (!errors.isEmpty()) {
+            redirectAttributes.addFlashAttribute("message", errors);
             return "redirect:/manager/data/import";
         }
+
+        // Validation du format CSV
         if (!file.getOriginalFilename().endsWith(".csv")) {
-            redirectAttributes.addFlashAttribute("message", "File not uploaded");
-            redirectAttributes.addFlashAttribute("st", "error");
+            errors.add("Please select a .csv file for file 1");
+        }
+        if (!file2.getOriginalFilename().endsWith(".csv")) {
+            errors.add("Please select a .csv file for file 2");
+        }
+        if (!file3.getOriginalFilename().endsWith(".csv")) {
+            errors.add("Please select a .csv file for file 3");
+        }
+
+        if (!errors.isEmpty()) {
+            redirectAttributes.addFlashAttribute("message", errors);
             return "redirect:/manager/data/import";
         }
+
         try {
-            dataManagerService.importData(file);
-            redirectAttributes.addFlashAttribute("message", "Data imported successfully");
-            redirectAttributes.addFlashAttribute("st", "success");
-        }
-        catch (Exception e) {
+            // Appel du service pour l'import
+            dataManagerService.importDataWithTransaction(file, file2, file3, errors);
+            if (!errors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errors", errors);
+                return "redirect:/manager/data/import";
+            }
+            redirectAttributes.addFlashAttribute("message", "Successfully imported data");
+            return "redirect:/manager/data/import";
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("message", e.getMessage());
             redirectAttributes.addFlashAttribute("st", "error");
             return "redirect:/manager/data/import";
         }
-        return "redirect:/manager/data/import";
     }
+
 
     @GetMapping("/reinit")
     public String reinit(RedirectAttributes redirectAttributes) {
