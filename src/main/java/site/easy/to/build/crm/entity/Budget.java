@@ -21,7 +21,7 @@ public class Budget {
 
     @NotNull
     @Column(name = "montant", nullable = false, precision = 15, scale = 2)
-    @Positive
+    @Positive(message = "Valeur negatif donnée, doit etre positif")
     private Double montant;
 
     @Column(name = "dt_ajout_budget", nullable = false)

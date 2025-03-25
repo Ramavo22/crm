@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `customer` (
                                           `customer_id` int unsigned NOT NULL AUTO_INCREMENT,
                                           `name` varchar(255) DEFAULT NULL,
     `phone` varchar(20) DEFAULT NULL,
-    `address` varchar(255) DEFAULT NULL,
+    `address` varchar(255) DEFAULT NULL,email_template
     `city` varchar(255) DEFAULT NULL,
     `state` varchar(255) DEFAULT NULL,
     `country` varchar(255) DEFAULT NULL,

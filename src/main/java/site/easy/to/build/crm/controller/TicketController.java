@@ -91,6 +91,11 @@ public class TicketController {
     @GetMapping("/manager/all-tickets")
     public String showAllTickets(Model model) {
         List<Ticket> tickets = ticketService.findAll();
+        System.out.println("\n==========================================================\n");
+        for (Ticket ticket : tickets) {
+            System.out.println(ticket.getCustomer());
+        }
+        System.out.println("\n==========================================================\n");
         model.addAttribute("tickets",tickets);
         return "ticket/my-tickets";
     }
