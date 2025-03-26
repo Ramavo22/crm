@@ -40,4 +40,7 @@ public interface BudgetRepository extends JpaRepository<Budget, Integer> {
     @Query("SELECT sum (b.montant) FROM Budget b WHERE b.customer.customerId = :customerId")
     public Double getSumOfMontantByCustomer(@Param("customerId")int customerId);
 
+    @Query("SELECT sum(b.montant) FROM Budget b")
+    public Double getSumOfMontant();
+
 }

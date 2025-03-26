@@ -55,5 +55,11 @@ public class BudgetServiceImpl implements BudgetService {
         return budgetRepository.getSumOfMontantByCustomer(userId);
     }
 
+    @Override
+    public Double getTotalBudget() {
+        Double val = budgetRepository.getSumOfMontant();
+        return val != null ? val : 0;
+    }
+
 
 }

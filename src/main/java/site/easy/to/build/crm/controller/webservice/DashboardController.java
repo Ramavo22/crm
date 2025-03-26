@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import site.easy.to.build.crm.service.Budget.BudgetService;
 import site.easy.to.build.crm.service.dashboard.DashboardService;
 import site.easy.to.build.crm.service.lead.LeadService;
 import site.easy.to.build.crm.service.ticket.TicketService;
@@ -20,11 +21,13 @@ public class DashboardController {
     private final DashboardService dashboardService;
     private final TicketService ticketService;
     private final LeadService leadService;
+    private final BudgetService budgetService;
 
-    public DashboardController(DashboardService dashboardService, TicketService ticketService, LeadService leadService) {
+    public DashboardController(DashboardService dashboardService, TicketService ticketService, LeadService leadService,BudgetService budgetService) {
         this.dashboardService = dashboardService;
         this.ticketService = ticketService;
         this.leadService = leadService;
+        this.budgetService = budgetService;
     }
 
     // add year for filter
@@ -53,6 +56,9 @@ public class DashboardController {
 
         double totalTicketYear = ticketService.getTicketCountByYear(now.getYear());
         data.put("totalTicketYear", totalTicketYear);
+
+        double totalBudget = budgetService.getTotalBudget();
+        data.put("totalBudget", totalBudget);
 
         return ResponseEntity.ok(dto);
 

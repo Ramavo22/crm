@@ -21,4 +21,6 @@ public interface BudgetService {
 
     public Double getSumOfMontantByCustomerId(int userId);
 
+    public Double getTotalBudget();
+
 }

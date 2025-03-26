@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import site.easy.to.build.crm.entity.TauxAlert;
 import site.easy.to.build.crm.service.TauxAlert.TauxAlertService;
 import site.easy.to.build.crm.util.DataTransfertObject;
@@ -22,6 +19,20 @@ public class TauxAlertController {
 
     @Autowired
     private TauxAlertService tauxAlertService;
+
+
+    @GetMapping
+    public ResponseEntity<DataTransfertObject> index(){
+
+        TauxAlert tauxAlert = tauxAlertService.findLastTauxAlert();
+        DataTransfertObject dataTransfertObject = new DataTransfertObject();
+        dataTransfertObject.setMessage("Configuration mis à jour ");
+        dataTransfertObject.setStatusCode(HttpStatus.CREATED.value());
+        dataTransfertObject.setErreur(null);
+        dataTransfertObject.setData(new HashMap<>());
+        dataTransfertObject.getData().put("tauxAlert",tauxAlert);
+        return ResponseEntity.ok(dataTransfertObject);
+    }
 
     @PostMapping("/save")
     public ResponseEntity<DataTransfertObject> save(@RequestBody TauxAlertWebService tauxAlertWebService) {
