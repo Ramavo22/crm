@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -73,7 +74,7 @@ public class DataManagerService {
     }
 
     public void importData(MultipartFile dataCsv, List<String> errors) {
-        String sql = "INSERT INTO customer (email,name, country, phone,user_id) VALUES (?, ?, ?, ?,?)";
+        String sql = "INSERT INTO customer (email,name, country, phone,user_id,created_at) VALUES (?, ?, ?, ?, ?, ?)";
         List<CustomerImport> customers = new ArrayList<>();
         List<User> users = userService.findAll();
         try (BufferedReader reader = new BufferedReader(
@@ -97,6 +98,7 @@ public class DataManagerService {
                 ps.setString(3, customer.getCountry());
                 ps.setString(4, customer.getPhoneNumber());
                 ps.setInt(5, customer.getUser().getId());
+                ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
             });
 
 
