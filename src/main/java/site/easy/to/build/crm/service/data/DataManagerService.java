@@ -201,7 +201,17 @@ public class DataManagerService {
                 String type = record.get("type");
                 String status = record.get("status");
                 String volaString = record.get("expense").replace(",", ".");
-                Double montant = Double.parseDouble(volaString);
+
+
+                Double montant;
+                try {
+                    montant = Double.parseDouble(volaString);
+                } catch (NumberFormatException e) {
+                    long lineNumber = record.getRecordNumber() + 1;
+                    errors.add("Fichier: " + csv.getOriginalFilename() + ", ligne: " + lineNumber
+                            + ". Valeur du budget invalide: " + volaString);
+                    continue; // Passer à la ligne suivante si erreur
+                }
 
                 depenseImports.add(new DepenseImport(email, subjectOrName, type, status, montant, record.getRecordNumber() + 1));
             }
@@ -231,6 +241,27 @@ public class DataManagerService {
 
                 Collections.shuffle(users);
                 User employee = users.get(0);
+
+
+                // Validation des statuts et priorités
+                boolean validLeadStatus = depenseImport.getType().equals("lead") &&
+                        depenseImport.getStatus().matches("^(meeting-to-schedule|scheduled|archived|success|assign-to-sales)$");
+
+                boolean validTicketStatus = depenseImport.getType().equals("ticket") &&
+                        depenseImport.getStatus().matches("^(open|assigned|on-hold|in-progress|resolved|closed|reopened|pending-customer-response|escalated|archived)$");
+
+
+                if (!validLeadStatus && depenseImport.getType().equals("lead")) {
+                    errors.add("Fichier: " + csv.getOriginalFilename() + ", ligne: " + depenseImport.getLineNumber()
+                            + ". Statut de Lead invalide : " + depenseImport.getStatus());
+                    continue;
+                }
+
+                if (!validTicketStatus && depenseImport.getType().equals("ticket")) {
+                    errors.add("Fichier: " + csv.getOriginalFilename() + ", ligne: " + depenseImport.getLineNumber()
+                            + ". Statut de Ticket invalide : " + depenseImport.getStatus());
+                    continue;
+                }
 
                 switch (depenseImport.getType()) {
                     case "lead":
