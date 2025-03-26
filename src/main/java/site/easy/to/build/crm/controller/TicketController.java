@@ -1,6 +1,8 @@
 package site.easy.to.build.crm.controller;
 
+import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -140,19 +142,18 @@ public class TicketController {
     }
 
     @PostMapping("/create-ticket")
-    public String createTicket(@ModelAttribute("ticket") @Validated Ticket ticket, BindingResult bindingResult, @RequestParam("customerId") int customerId,
-                               @RequestParam Map<String, String> formParams, Model model,
-                               @RequestParam("employeeId") int employeeId, Authentication authentication, RedirectAttributes redirectAttributes) {
+    public String createTicket(@ModelAttribute("ticket") @Validated Ticket ticket, BindingResult bindingResult,
+                               @RequestParam("customerId") int customerId, @RequestParam("employeeId") int employeeId,
+                               Authentication authentication, @RequestParam("confirmed") @Nullable Boolean confirmed,
+                               Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
         int userId = authenticationUtils.getLoggedInUserId(authentication);
         User manager = userService.findById(userId);
-        if(manager == null) {
-            return "error/500";
-        }
-        if(manager.isInactiveUser()) {
+        if (manager == null || manager.isInactiveUser()) {
             return "error/account-inactive";
         }
-        if(bindingResult.hasErrors()) {
+
+        if (bindingResult.hasErrors()) {
             List<User> employees = new ArrayList<>();
             List<Customer> customers;
 
@@ -171,45 +172,45 @@ public class TicketController {
 
         User employee = userService.findById(employeeId);
         Customer customer = customerService.findByCustomerId(customerId);
-
-        if(employee == null || customer == null) {
+        if (employee == null || customer == null) {
             return "error/500";
         }
-        if(AuthorizationUtil.hasRole(authentication, "ROLE_EMPLOYEE")) {
-            if(userId != employeeId || customer.getUser().getId() != userId) {
-                return "error/500";
-            }
+
+        if (AuthorizationUtil.hasRole(authentication, "ROLE_EMPLOYEE") && (userId != employeeId || customer.getUser().getId() != userId)) {
+            return "error/500";
         }
 
 
 
-        StringBuilder message = new StringBuilder();
         Double expenseInBase = expenseService.getTotalExpenseByCustomer(customerId);
         Double actualExpense = expenseInBase + ticket.getDepense();
         Double tauxAlert = tauxAlertService.findLastTauxAlert().getPourcentage();
         Double budget = budgetService.getSumOfMontantByCustomerId(customerId);
-        Double pourcentageExpense  = (actualExpense * 100) / budget;
+        double pourcentageExpense = (actualExpense * 100) / budget;
         boolean needConfirmation = pourcentageExpense > 100;
-        if (needConfirmation) {
-            message.append("Your Expense at ").append(pourcentageExpense).append("%").append(" for this customer's actual budget").append(". You need to confirm your expense.");
-            String m = message.toString();
-            System.out.println(m);
-            redirectAttributes.addFlashAttribute("alertMessage", m);
-        }
-        if(pourcentageExpense>tauxAlert){
-            message.append("Your Expense at ").append(pourcentageExpense).append("%").append(" for this customer's actual budget");
-            String m = message.toString();
-            System.out.println(m);
-            redirectAttributes.addFlashAttribute("alertMessage", m);
-        }
+
         ticket.setCustomer(customer);
         ticket.setManager(manager);
         ticket.setEmployee(employee);
         ticket.setCreatedAt(LocalDateTime.now());
+
+        if (needConfirmation && confirmed == null) {
+            session.setAttribute("ticket", ticket);
+            session.setAttribute("pourcentageExpense", pourcentageExpense);
+            redirectAttributes.addFlashAttribute("message", "Your expense is at " + pourcentageExpense + "% of the budget. Please confirm before proceeding.");
+            return "redirect:/employee/ticket/confirm";
+        } else {
+            if (pourcentageExpense > tauxAlert) {
+                redirectAttributes.addFlashAttribute("alertMessage", "Your expense is at " + pourcentageExpense + "% of the customer's actual budget.");
+            }
+        }
+
+
         ticketService.save(ticket);
-        // ajouter depense
+
         return "redirect:/employee/ticket/assigned-tickets";
     }
+
 
     @GetMapping("/update-ticket/{id}")
     public String showTicketUpdatingForm(Model model, @PathVariable("id") int id, Authentication authentication) {
@@ -410,4 +411,35 @@ public class TicketController {
             }
         }
     }
+
+    @GetMapping("/confirm")
+    public String confirmLead(Model model) {
+        return "ticket/confirm-ticket";
+    }
+
+    @PostMapping("/confirm")
+    public String confirmTicket(HttpSession session, Authentication authentication,
+                                @RequestParam("confirmed") boolean confirmed, RedirectAttributes redirectAttributes) {
+        // Récupérer les données stockées dans la session
+        Ticket ticket = (Ticket) session.getAttribute("ticket");
+        double pourcentageExpense = (double) session.getAttribute("pourcentageExpense");
+
+        // Si confirmation, sauvegarder le ticket
+        if (confirmed) {
+            ticketService.save(ticket);
+            redirectAttributes.addFlashAttribute("alertMessageDanger", "Your expense is at " + pourcentageExpense + "% of the customer's budget");
+
+            // Rediriger selon le rôle de l'utilisateur
+            if (AuthorizationUtil.hasRole(authentication, "ROLE_MANAGER")) {
+                return "redirect:/employee/ticket/created-tickets";
+            }
+            return "redirect:/employee/ticket/assigned-tickets";  // Redirection après confirmation
+        } else {
+            return "redirect:/employee/ticket/create-ticket";  // Retour à la création si la confirmation échoue
+        }
+    }
+
+
+
+
 }
